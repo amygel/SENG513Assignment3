@@ -22,7 +22,9 @@ io.on('connection', function(socket){
 	    io.emit('updatechat', socket.username, msg);
     });
     // listen to added users
-    socket.on('adduser', function(username){
+    socket.on('adduser', function(){
+        let num = Object.keys(usernames).length + 1;
+        let username = 'User'+num;
         socket.username = username;
         usernames[username] = username;
         socket.emit('updatechat', 'SERVER', 'you have connected');

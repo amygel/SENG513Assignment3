@@ -8,14 +8,7 @@ $(function() {
     });
     // on connection to server, add user to server
     socket.on('connect', function(){
-        let num;
-        if ($('#users').count) {
-            num = $('#users').count + 1
-        } else {
-            num = 1
-        }
-
-        socket.emit('adduser', 'User' + num);
+        socket.emit('adduser');
     });
     // update chat with new messages
     socket.on('updatechat', function(username, msg){
