@@ -26,7 +26,7 @@ io.on('connection', function(socket){
     socket.on('sendchat', function(msg){
         if(msg.includes('/nick ')) {
             updateUsername(socket, msg);
-            return
+            return;
         }
         let time = getCurrentTime();
         addToHistory(time, socket.username, msg);
@@ -59,6 +59,11 @@ function setupSocketUsername(socket) {
 
 function updateUsername(socket, msg) {
     let newName = msg.replace('/nick ','');
+    if (usernames.hasOwnProperty(newName)) {
+        let time = getCurrentTime();
+        socket.emit('updatechat', time, 'SERVER', 'Username already exists. Please try again.');
+        return;
+    }
     delete usernames[socket.username];
     usernames[newName] = newName;
     socket.username = newName;
