@@ -5,9 +5,9 @@ var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 var port = process.env.PORT || 3000;
 
-// http://psitsmike.com/2011/09/node-js-and-socket-io-chat-tutorial/
-// usernames which are currently connected to the chat
-var usernames = {};
+let userCount = 0;
+let usernames = {};
+let history = [];
 
 http.listen( port, function () {
     console.log('listening on port', port);
@@ -17,11 +17,18 @@ app.use(express.static(__dirname + '/public'));
 
 // http://psitsmike.com/2011/09/node-js-and-socket-io-chat-tutorial/
 io.on('connection', function(socket){
+    // Load message history
+    for (let message of history) {
+        socket.emit('updatechat', message.time, message.username, message.text);
+    };
+
     // listen to chat messages
     socket.on('sendchat', function(msg){
         let time = getCurrentTime();
+        addToHistory(time, socket.username, msg);
 	    io.emit('updatechat', time, socket.username, msg);
     });
+
     // listen to added users
     socket.on('adduser', function(){
         setupSocketUsername(socket);
@@ -30,6 +37,7 @@ io.on('connection', function(socket){
         socket.broadcast.emit('updatechat', time, 'SERVER', socket.username + ' has connected');
         io.sockets.emit('updateusers', usernames);
     });
+
     // listen for user disconnect
     socket.on('disconnect', function(){
         delete usernames[socket.username];
@@ -40,15 +48,29 @@ io.on('connection', function(socket){
 });
 
 function setupSocketUsername(socket) {
-    let num = Object.keys(usernames).length + 1;
-    let username = 'User'+num;
+    let username = 'User'+ (++userCount);
     socket.username = username;
     usernames[username] = username;
 }
 
 function getCurrentTime() {
-    var d = new Date();
-    let hr = d.getHours(); // => 9
-    let min = d.getMinutes(); // =>  30
+    let d = new Date();
+    let hr = d.getHours();
+    let min = d.getMinutes();
+    if (min < 10){
+        min = "0"+min;
+    }
     return "" + hr + ":" + min;
+}
+
+function addToHistory(time, user, msg) {
+    if (history.length >= 200) {
+        history.shift()
+    }
+    let fullMessage = {
+        time:time,
+        username:user,
+        text:msg
+    };
+    history.push(fullMessage)
 }
