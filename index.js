@@ -19,22 +19,36 @@ app.use(express.static(__dirname + '/public'));
 io.on('connection', function(socket){
     // listen to chat messages
     socket.on('sendchat', function(msg){
-	    io.emit('updatechat', socket.username, msg);
+        let time = getCurrentTime();
+	    io.emit('updatechat', time, socket.username, msg);
     });
     // listen to added users
     socket.on('adduser', function(){
-        let num = Object.keys(usernames).length + 1;
-        let username = 'User'+num;
-        socket.username = username;
-        usernames[username] = username;
-        socket.emit('updatechat', 'SERVER', 'you have connected');
-        socket.broadcast.emit('updatechat', 'SERVER', username + ' has connected');
+        setupSocketUsername(socket);
+        let time = getCurrentTime();
+        socket.emit('updatechat', time, 'SERVER', 'you have connected');
+        socket.broadcast.emit('updatechat', time, 'SERVER', socket.username + ' has connected');
         io.sockets.emit('updateusers', usernames);
     });
     // listen for user disconnect
     socket.on('disconnect', function(){
         delete usernames[socket.username];
+        let time = getCurrentTime();
         io.sockets.emit('updateusers', usernames);
-        socket.broadcast.emit('updatechat', 'SERVER', socket.username + ' has disconnected');
+        socket.broadcast.emit('updatechat', time, 'SERVER', socket.username + ' has disconnected');
     });
 });
+
+function setupSocketUsername(socket) {
+    let num = Object.keys(usernames).length + 1;
+    let username = 'User'+num;
+    socket.username = username;
+    usernames[username] = username;
+}
+
+function getCurrentTime() {
+    var d = new Date();
+    let hr = d.getHours(); // => 9
+    let min = d.getMinutes(); // =>  30
+    return "" + hr + ":" + min;
+}
