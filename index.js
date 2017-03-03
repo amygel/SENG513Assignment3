@@ -24,6 +24,10 @@ io.on('connection', function(socket){
 
     // listen to chat messages
     socket.on('sendchat', function(msg){
+        if(msg.includes('/nick ')) {
+            updateUsername(socket, msg);
+            return
+        }
         let time = getCurrentTime();
         addToHistory(time, socket.username, msg);
 	    io.emit('updatechat', time, socket.username, msg);
@@ -51,6 +55,14 @@ function setupSocketUsername(socket) {
     let username = 'User'+ (++userCount);
     socket.username = username;
     usernames[username] = username;
+}
+
+function updateUsername(socket, msg) {
+    let newName = msg.replace('/nick ','');
+    delete usernames[socket.username];
+    usernames[newName] = newName;
+    socket.username = newName;
+    io.sockets.emit('updateusers', usernames);
 }
 
 function getCurrentTime() {
