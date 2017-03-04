@@ -4,10 +4,15 @@
     <title>Socket.IO chat</title>
     <link rel="stylesheet" href="style.css">
   </head>
+  <div id="sidebar">
+      <h1>Users</h1>
+      <br>
+      <ul id="users"></ul>
+  </div>
   <body>
-    <div style="float:left;width:100px;border-right:1px solid black;height:300px;padding:10px;overflow:scroll-y;">
-      <b>USERS</b>
-      <div id="users"></div>
+    <div id="topbar">
+        <h1>Messages</h1>
+        <h3><i>You are </i></h3>
     </div>
     <ul id="messages"></ul>
     <form action="">

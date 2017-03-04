@@ -12,13 +12,13 @@ $(function() {
     });
     // update chat with new messages
     socket.on('updatechat', function(username, msg){
-        $('#messages').append($('<b>'+username + ':</b> ' + msg + '<br>'));
+        $('#messages').append('<li><b>'+username + ':</b> ' + msg + '</li>');
     });
     // update user list
     socket.on('updateusers', function(data) {
         $('#users').empty();
         $.each(data, function(key, value) {
-            $('#users').append('<div>' + key + '</div>');
+            $('#users').append('<li>' + key + '</li>');
         });
     });
 });
