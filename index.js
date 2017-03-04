@@ -5,10 +5,11 @@ var http = require('http').createServer(app);
 var io = require('socket.io')(http);
 var port = process.env.PORT || 3000;
 
-let userCount = 0;
 let onlineUsernames = {};
 let allUsernames = {};
 let history = [];
+let colours = ['red', 'blue', 'green', 'orange', 'purple'];
+let colourCount = 0;
 
 http.listen( port, function () {
     console.log('listening on port', port);
@@ -21,7 +22,7 @@ io.on('connection', function(socket){
     // Load message history
     for (let message of history) {
         socket.emit('updatechat',
-            message.time, message.username, message.text);
+            message.time, message.username, message.colour, message.text);
     }
 
     // listen to chat messages
@@ -31,16 +32,18 @@ io.on('connection', function(socket){
             return;
         }
         let time = getCurrentTime();
-        addToHistory(time, socket.username, msg);
-	    io.emit('updatechat', time, socket.username, msg);
+        addToHistory(time, socket.username, socket.colour, msg);
+	    io.emit('updatechat', time, socket.username, socket.colour, msg);
     });
 
     // listen to added users
     socket.on('adduser', function(username){
         if (!username) {
-            username = 'User'+ (++userCount);
+            let num = Object.keys(allUsernames).length + 1;
+            username = 'User' + num;
         }
         setupSocketUsername(socket, username);
+        setupSocketColour(socket);
         let time = getCurrentTime();
         socket.emit('updatecurruser', socket.username);
         io.sockets.emit('updateusers', onlineUsernames);
@@ -58,6 +61,12 @@ function setupSocketUsername(socket, name) {
     socket.username = name;
     onlineUsernames[name] = name;
     allUsernames[name] = name;
+}
+
+function setupSocketColour(socket) {
+    let num = colourCount % 5;
+    socket.colour = colours[num];
+    colourCount++;
 }
 
 function updateUsername(socket, msg) {
@@ -85,13 +94,14 @@ function getCurrentTime() {
     return "" + hr + ":" + min;
 }
 
-function addToHistory(time, user, msg) {
+function addToHistory(time, user, colour, msg) {
     if (history.length >= 200) {
         history.shift()
     }
     let fullMessage = {
         time:time,
         username:user,
+        colour:colour,
         text:msg
     };
     history.push(fullMessage)

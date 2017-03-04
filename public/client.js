@@ -17,12 +17,12 @@ $(function() {
     });
 
     // update chat with new messages
-    socket.on('updatechat', function(time, username, msg){
-        let text = '';
+    socket.on('updatechat', function(time, username, colour, msg){
+        let text = '<tr><td><b>' + time + ' <span style="color:'+ colour + '">' + username + '</span>:';
         if(username === currUser) {
-            text = '<tr><td><b>' + time + ' ' + username + ': ' + msg + '</b></td></tr>';
+            text += ' ' + msg + '</b></td></tr>';
         } else{
-            text = '<tr><td><b>' + time + ' ' + username + ':</b> ' + msg + '</td></tr>';
+            text += '</b> ' + msg + '</td></tr>';
         }
         $('#messages').append(text);
     });
