@@ -6,7 +6,8 @@ var io = require('socket.io')(http);
 var port = process.env.PORT || 3000;
 
 let userCount = 0;
-let usernames = {};
+let onlineUsernames = {};
+let allUsernames = {};
 let history = [];
 
 http.listen( port, function () {
@@ -19,8 +20,9 @@ app.use(express.static(__dirname + '/public'));
 io.on('connection', function(socket){
     // Load message history
     for (let message of history) {
-        socket.emit('updatechat', message.time, message.username, message.text);
-    };
+        socket.emit('updatechat',
+            message.time, message.username, message.text);
+    }
 
     // listen to chat messages
     socket.on('sendchat', function(msg){
@@ -34,39 +36,43 @@ io.on('connection', function(socket){
     });
 
     // listen to added users
-    socket.on('adduser', function(){
-        setupSocketUsername(socket);
+    socket.on('adduser', function(username){
+        if (!username) {
+            username = 'User'+ (++userCount);
+        }
+        setupSocketUsername(socket, username);
         let time = getCurrentTime();
         socket.emit('updatecurruser', socket.username);
-        io.sockets.emit('updateusers', usernames);
+        io.sockets.emit('updateusers', onlineUsernames);
     });
 
     // listen for user disconnect
     socket.on('disconnect', function(){
-        delete usernames[socket.username];
+        delete onlineUsernames[socket.username];
         let time = getCurrentTime();
-        io.sockets.emit('updateusers', usernames);
+        io.sockets.emit('updateusers', onlineUsernames);
     });
 });
 
-function setupSocketUsername(socket) {
-    let username = 'User'+ (++userCount);
-    socket.username = username;
-    usernames[username] = username;
+function setupSocketUsername(socket, name) {
+    socket.username = name;
+    onlineUsernames[name] = name;
+    allUsernames[name] = name;
 }
 
 function updateUsername(socket, msg) {
     let newName = msg.replace('/nick ','');
-    if (usernames.hasOwnProperty(newName)) {
+    if (allUsernames.hasOwnProperty(newName)) {
         let time = getCurrentTime();
-        socket.emit('updatechat', time, 'ERROR', 'Username already exists. Please try again.');
+        socket.emit('updatechat', time, 'ERROR',
+            'Username already exists. Please try again.');
         return;
     }
-    delete usernames[socket.username];
-    usernames[newName] = newName;
-    socket.username = newName;
+    delete onlineUsernames[socket.username];
+    delete allUsernames[socket.username];
+    setupSocketUsername(socket, newName);
     socket.emit('updatecurruser', socket.username);
-    io.sockets.emit('updateusers', usernames);
+    io.sockets.emit('updateusers', onlineUsernames);
 }
 
 function getCurrentTime() {

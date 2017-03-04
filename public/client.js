@@ -11,7 +11,9 @@ $(function() {
 
     // on connection to server, add user to server
     socket.on('connect', function(){
-        socket.emit('adduser');
+        //https://developer.mozilla.org/en-US/docs/Web/API/Document/cookie
+        let cookieValue = document.cookie.replace(/(?:(?:^|.*;\s*)username\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+        socket.emit('adduser', cookieValue);
     });
 
     // update chat with new messages
@@ -37,5 +39,12 @@ $(function() {
     socket.on('updatecurruser', function(user) {
         currUser = user;
         $('#name').html('<i>You are '+ user + '</i>');
+        document.cookie = 'username='+encodeURIComponent(user)+'; expires='+getExpiryDate();
     });
 });
+
+function getExpiryDate() {
+    let d = new Date();
+    d.setDate(d.getDate()+7);
+    return d.toUTCString() ;
+}
