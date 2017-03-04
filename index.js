@@ -8,7 +8,7 @@ var port = process.env.PORT || 3000;
 let onlineUsernames = {};
 let allUsernames = {};
 let history = [];
-let colours = ['red', 'blue', 'green', 'orange', 'purple'];
+let colours = ['FF0000', '0000FF', '00CC00', 'FF8000', '9933FF'];
 let colourCount = 0;
 
 http.listen( port, function () {
@@ -27,6 +27,10 @@ io.on('connection', function(socket){
 
     // listen to chat messages
     socket.on('sendchat', function(msg){
+        if(msg.includes('/nickcolor ')) {
+            updateColour(socket, msg);
+            return;
+        }
         if(msg.includes('/nick ')) {
             updateUsername(socket, msg);
             return;
@@ -43,7 +47,7 @@ io.on('connection', function(socket){
             username = 'User' + num;
         }
         setupSocketUsername(socket, username);
-        setupSocketColour(socket);
+        setupDefaultSocketColour(socket);
         let time = getCurrentTime();
         socket.emit('updatecurruser', socket.username);
         io.sockets.emit('updateusers', onlineUsernames);
@@ -63,7 +67,7 @@ function setupSocketUsername(socket, name) {
     allUsernames[name] = name;
 }
 
-function setupSocketColour(socket) {
+function setupDefaultSocketColour(socket) {
     let num = colourCount % 5;
     socket.colour = colours[num];
     colourCount++;
@@ -82,6 +86,11 @@ function updateUsername(socket, msg) {
     setupSocketUsername(socket, newName);
     socket.emit('updatecurruser', socket.username);
     io.sockets.emit('updateusers', onlineUsernames);
+}
+
+function updateColour(socket, msg) {
+    let newColour = msg.replace('/nickcolor ','');
+    socket.colour = newColour;
 }
 
 function getCurrentTime() {

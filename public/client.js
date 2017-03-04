@@ -18,7 +18,7 @@ $(function() {
 
     // update chat with new messages
     socket.on('updatechat', function(time, username, colour, msg){
-        let text = '<tr><td><b>' + time + ' <span style="color:'+ colour + '">' + username + '</span>:';
+        let text = '<tr><td><b>' + time + ' <span style="color:#'+ colour + '">' + username + '</span>:';
         if(username === currUser) {
             text += ' ' + msg + '</b></td></tr>';
         } else{
