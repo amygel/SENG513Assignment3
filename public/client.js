@@ -15,7 +15,7 @@ $(function() {
 
     // update chat with new messages
     socket.on('updatechat', function(time, username, msg){
-        $('#messages').append('<li><b>' + time + ' ' + username + ':</b> ' + msg + '</li>');
+        $('#messages').append('<tr><td><b>' + time + ' ' + username + ':</b> ' + msg + '</td></tr>');
     });
 
     // update user list
