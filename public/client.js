@@ -11,8 +11,8 @@ $(function() {
         socket.emit('adduser');
     });
     // update chat with new messages
-    socket.on('updatechat', function(username, msg){
-        $('#messages').append('<li><b>'+username + ':</b> ' + msg + '</li>');
+    socket.on('updatechat', function(time, username, msg){
+        $('#messages').append($('<li><b>' + time + ' ' + username + ':</b> ' + msg + '</li>'));
     });
     // update user list
     socket.on('updateusers', function(data) {
