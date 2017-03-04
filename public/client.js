@@ -1,6 +1,7 @@
 // shorthand for $(document).ready(...)
 $(function() {
     var socket = io();
+    let currUser = '';
 
     $('form').submit(function(){
 	    socket.emit('sendchat', $('#m').val());
@@ -15,7 +16,13 @@ $(function() {
 
     // update chat with new messages
     socket.on('updatechat', function(time, username, msg){
-        $('#messages').append('<tr><td><b>' + time + ' ' + username + ':</b> ' + msg + '</td></tr>');
+        let text = '';
+        if(username === currUser) {
+            text = '<tr><td><b>' + time + ' ' + username + ': ' + msg + '</b></td></tr>';
+        } else{
+            text = '<tr><td><b>' + time + ' ' + username + ':</b> ' + msg + '</td></tr>';
+        }
+        $('#messages').append(text);
     });
 
     // update user list
@@ -28,6 +35,7 @@ $(function() {
 
     // update current user
     socket.on('updatecurruser', function(user) {
+        currUser = user;
         $('#name').html('<i>You are '+ user + '</i>');
     });
 });
