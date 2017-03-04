@@ -37,8 +37,7 @@ io.on('connection', function(socket){
     socket.on('adduser', function(){
         setupSocketUsername(socket);
         let time = getCurrentTime();
-        socket.emit('updatechat', time, 'SERVER', 'you have connected');
-        socket.broadcast.emit('updatechat', time, 'SERVER', socket.username + ' has connected');
+        socket.emit('updatecurruser', socket.username);
         io.sockets.emit('updateusers', usernames);
     });
 
@@ -47,7 +46,6 @@ io.on('connection', function(socket){
         delete usernames[socket.username];
         let time = getCurrentTime();
         io.sockets.emit('updateusers', usernames);
-        socket.broadcast.emit('updatechat', time, 'SERVER', socket.username + ' has disconnected');
     });
 });
 
@@ -61,12 +59,13 @@ function updateUsername(socket, msg) {
     let newName = msg.replace('/nick ','');
     if (usernames.hasOwnProperty(newName)) {
         let time = getCurrentTime();
-        socket.emit('updatechat', time, 'SERVER', 'Username already exists. Please try again.');
+        socket.emit('updatechat', time, 'ERROR', 'Username already exists. Please try again.');
         return;
     }
     delete usernames[socket.username];
     usernames[newName] = newName;
     socket.username = newName;
+    socket.emit('updatecurruser', socket.username);
     io.sockets.emit('updateusers', usernames);
 }
 
