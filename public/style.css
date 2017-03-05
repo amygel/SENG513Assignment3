@@ -1,8 +1,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
     font: 13px Helvetica, Arial;
-    overflow: auto;
-    position: fixed;
+    position: relative;
     width: 100%;
     height: 100%;
 }
@@ -18,6 +17,7 @@ form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 
     overflow-y: scroll;
     position: fixed;
 }
+#messages { width: 100%; }
 #messages tr:nth-child(odd) { background: #eee; }
 #messages td { padding: 5px 10px; }
 #users { list-style-type: circle; margin: 0; padding: 0; height: 100%; }
@@ -26,9 +26,10 @@ form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 
     padding: 2em;
     padding-top: 1em;
     background:mediumseagreen;
-    float: right;
+    right: 0;
     width: 20%;
     height: 100%;
+    position: fixed;
 }
 #top-bar {
     padding: 1em;
