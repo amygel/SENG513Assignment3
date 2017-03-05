@@ -19,12 +19,6 @@ app.use(express.static(__dirname + '/public'));
 
 // http://psitsmike.com/2011/09/node-js-and-socket-io-chat-tutorial/
 io.on('connection', function(socket){
-    // Load message history
-    for (let message of history) {
-        socket.emit('updatechat',
-            message.time, message.username, message.colour, message.text);
-    }
-
     // listen to chat messages
     socket.on('sendchat', function(msg){
         if(msg.includes('/nickcolor ')) {
@@ -51,6 +45,9 @@ io.on('connection', function(socket){
         let time = getCurrentTime();
         socket.emit('updatecurruser', socket.username);
         io.sockets.emit('updateusers', onlineUsernames);
+
+        // Load message history
+        loadHistory(socket);
     });
 
     // listen for user disconnect
@@ -114,4 +111,11 @@ function addToHistory(time, user, colour, msg) {
         text:msg
     };
     history.push(fullMessage)
+}
+
+function loadHistory(socket) {
+    for (let message of history) {
+        socket.emit('updatechat',
+            message.time, message.username, message.colour, message.text);
+    }
 }
