@@ -25,6 +25,7 @@ $(function() {
             text += '</b> ' + msg + '</td></tr>';
         }
         $('#messages').append(text);
+        scrollToBottom();
     });
 
     // update user list
@@ -47,4 +48,9 @@ function getExpiryDate() {
     let d = new Date();
     d.setDate(d.getDate()+7);
     return d.toUTCString() ;
+}
+
+function scrollToBottom() {
+    let objDiv = document.getElementById("chat-area");
+    objDiv.scrollTop = objDiv.scrollHeight;
 }
