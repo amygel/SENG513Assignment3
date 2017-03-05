@@ -37,8 +37,7 @@ io.on('connection', function(socket){
     // listen to added users
     socket.on('adduser', function(username){
         if (!username) {
-            let num = Object.keys(allUsernames).length + 1;
-            username = 'User' + num;
+            username = defaultUsername();
         }
         setupSocketUsername(socket, username);
         setupDefaultSocketColour(socket);
@@ -58,6 +57,16 @@ io.on('connection', function(socket){
     });
 });
 
+function defaultUsername() {
+    let num = Object.keys(allUsernames).length + 1;
+    let username = 'User' + num;
+    while (allUsernames.hasOwnProperty(username)) {
+        num++;
+        username = 'User' + num;
+    }
+    return username;
+}
+
 function setupSocketUsername(socket, name) {
     socket.username = name;
     onlineUsernames[name] = name;
@@ -74,7 +83,7 @@ function updateUsername(socket, msg) {
     let newName = msg.replace('/nick ','');
     if (allUsernames.hasOwnProperty(newName)) {
         let time = getCurrentTime();
-        socket.emit('updatechat', time, 'ERROR',
+        socket.emit('updatechat', time, 'ERROR', '000000',
             'Username already exists. Please try again.');
         return;
     }
